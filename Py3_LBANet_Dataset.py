@@ -13,7 +13,7 @@ import random
 ### Master Dataset definition for the LBANet Pytorch trainer ###
 ### Imported by: Py3_LBANet_Train.py ###
 
-# (C) Dr Adam Jan Sadowski of Imperial College London, last modified at 19.40 on 31/05/22
+# (C) Dr Adam Jan Sadowski of Imperial College London, last modified at 23.51 on 31/05/22
 # Copyright under a BSD 3-Clause License, see https://github.com/SadowskiAJ/LBANet.git
 
 
@@ -135,6 +135,9 @@ class LBA_Images_Dataset(Dataset):
             if self.data_labels[Class] == "ShearTransverse": weight = 3                                               
             enhanced_length += weight * self.class_counts[Class]
             RHS = LHS + self.class_counts[Class]
-            weights[:,LHS:RHS] = float(1. / len(self.data_labels)) / float(weight * self.class_counts[Class])
+            try:
+                weights[:,LHS:RHS] = float(1. / len(self.data_labels)) / float(weight * self.class_counts[Class])
+            except:
+                weights[:,LHS:RHS] = 0.0
             LHS = RHS        
         return enhanced_length, weights
