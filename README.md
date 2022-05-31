@@ -12,9 +12,9 @@ The following scripts interface with the `PyTorch` framework via a `Python 3` in
 * `Py3_LBANet_Train.py` - The main script to train the `LBANet` convolutional neural network (CNN) with the `PyTorch` framework and also perform stratified cross-validation.
 * `Py3_LBANet_Dataset.py` - A script called by the above to define the `Dataset` object and custom image transformations.
 * `Py3_LBANet_Arch1.py` - A script potentially called by the above to define a CNN architecture with one convolutional-maxpool layer pair and three fully-connected layers.
-* * `Py3_LBANet_Arch2.py` - A script potentially called by the above to define a CNN architecture with two convolutional-maxpool layer pair and three fully-connected layers.
-* * `Py3_LBANet_Arch3.py` - A script potentially called by the above to define a CNN architecture with three convolutional-maxpool layer pair and four fully-connected layers.
-* * `Py3_LBANet_Arch4.py` - A script potentially called by the above to define a CNN architecture with four convolutional-maxpool layer pair and four fully-connected layers. This is the architecture ultimately adopted for `LBANet`.
+* `Py3_LBANet_Arch2.py` - A script potentially called by the above to define a CNN architecture with two convolutional-maxpool layer pair and three fully-connected layers.
+* `Py3_LBANet_Arch3.py` - A script potentially called by the above to define a CNN architecture with three convolutional-maxpool layer pair and four fully-connected layers.
+* `Py3_LBANet_Arch4.py` - A script potentially called by the above to define a CNN architecture with four convolutional-maxpool layer pair and four fully-connected layers. This is the architecture ultimately adopted for `LBANet`.
 
 # `LBANet` trained network in the `.pt` `PyTorch` format
 Blah
