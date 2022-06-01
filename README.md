@@ -20,9 +20,9 @@ The following scripts interface with the `PyTorch` framework via a `Python 3` in
 Blah
 
 # Datasets of LBA eigenmodes of cylindrical shells
-The datasets may be downloaded via the following links:
+The datasets may be downloaded under a CC BY 4.0 license via the following links:
 * `D0` on 30/05/22 (basic generic dataset n = 13392, AJS): https://doi.org/10.6084/m9.figshare.19953740
-NOT ACTIVE * `D1` on 31/05/22 (wind buckling dataset n = 380, AJS): https://academictorrents.com/download/927280b8dd0d67db124982162943bc657ef1098c
+* NOT ACTIVE `D1` on 31/05/22 (wind buckling dataset n = 380, AJS): https://academictorrents.com/download/927280b8dd0d67db124982162943bc657ef1098c
 
 
 Last updated by Dr Adam Jan Sadowski on 01/06/22.
