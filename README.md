@@ -19,9 +19,10 @@ The following scripts interface with the `PyTorch` framework via a `Python 3` in
 # `LBANet` trained network in the `.pt` `PyTorch` format
 Blah
 
-# Datasets
+# Datasets of LBA eigenmodes of cylindrical shells
 The datasets may be downloaded from Academic Torrents via the following links:
-* `D0` on 30/05/22 (basic dataset, AJS): https://academictorrents.com/download/18e628a6f02706345a6472a467cb646d7e010752
+* `D0` on 30/05/22 (basic generic dataset n = 13392, AJS): https://academictorrents.com/download/18e628a6f02706345a6472a467cb646d7e010752
+* `D1` on 31/05/22 (wind buckling dataset n = 380, AJS): https://academictorrents.com/download/927280b8dd0d67db124982162943bc657ef1098c
 
 
-Last updated by Dr Adam Jan Sadowski on 31/05/22.
+Last updated by Dr Adam Jan Sadowski on 01/06/22.
