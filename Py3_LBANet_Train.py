@@ -14,7 +14,7 @@ from Py3_LBANet_Dataset import *
 ### Master LBANet Pytorch trainining script ###
 ### Can be run directly from cmd as: python Py3LBANet_Train.py ###
 
-# (C) Dr Adam Jan Sadowski of Imperial College London, last modified at 18.12 on 01/06/22
+# (C) Dr Adam Jan Sadowski of Imperial College London, last modified at 00.21 on 02/06/22
 # Copyright under a BSD 3-Clause License, see https://github.com/SadowskiAJ/LBANet.git
 
 
@@ -37,7 +37,7 @@ k_folds = 1 # no. of folds for k-fold cross-validation
 # N.B. if the above is set to 1, the entire dataset is used for training the final model (with no cross-validation)
 batch_size = 32 # how many samples per batch to load
 report_loss_every_X_batches = 50 # report on loss function every X batches
-num_workers = 8 # no. of subprocesses to be used in data loading
+num_workers = 0 # no. of subprocesses to be used in data loading (set to zero if complains 'broken pipe')
 restart_file = 'LBANet_D0.pt' # Restart analysis (k_folds = 1 only) - give .pt file name as string to restart
 
 # CNN optimiser hyperparameters (input layer always of size 1000x1000 = 10^6 2-channel RB pixels, with unusued G channel dropped entirely)
@@ -46,7 +46,7 @@ momentum = 0.00 # Momentum in the direction of steepest gradient for the optimis
 epochs = 20 # Max. no of training epochs
 
 # Set device
-target_dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # Use CUDA-enabled GPU if present
+target_dev = 'cpu'#torch.device('cuda' if torch.cuda.is_available() else 'cpu') # Use CUDA-enabled GPU if present
  
 
 #################
