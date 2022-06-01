@@ -14,7 +14,7 @@ import random
 ### Master Dataset definition for the LBANet Pytorch trainer ###
 ### Imported by: Py3_LBANet_Train.py ###
 
-# (C) Dr Adam Jan Sadowski of Imperial College London, last modified at 23.30 on 01/06/22
+# (C) Dr Adam Jan Sadowski of Imperial College London, last modified at 00.21 on 02/06/22
 # Copyright under a BSD 3-Clause License, see https://github.com/SadowskiAJ/LBANet.git
 
 
@@ -61,7 +61,8 @@ class LBA_Images_Dataset(Dataset):
     def __init__(self, root_dir, datasets, data_labels, splitpad_transforms=None, resizemove_transforms=None, flip_transforms=None):
         self.root_dir = root_dir
         self.image_paths, self.image_labelIDs, self.data_labels = [], [], data_labels
-        self.class_counts = np.zeros([len(datasets),len(data_labels)], dtype=int)
+        self.basic_class_counts = np.zeros([len(datasets),len(data_labels)], dtype=int)
+        self.enhanced_class_counts = np.zeros([len(datasets),len(data_labels)], dtype=int)
 
         enhanced = False
         if (splitpad_transforms is not None) or (resizemove_transforms is not None): enhanced = True
@@ -72,23 +73,24 @@ class LBA_Images_Dataset(Dataset):
         self.splitpad_apply, self.resizemove_apply, self.flip_apply = [], [], []
 
         self.dataset_lengths, self.dataset_enhanced = np.zeros(len(datasets), dtype=int), np.zeros(len(datasets), dtype=bool)
-        self.dataset_dirs = []
+        self.dataset_dirs, self.image_datasets = [], []
         for file in os.listdir(root_dir): # Enter datasets root directory
             full_dir = root_dir + '/' + file
             if os.path.isdir(full_dir): # Consider only folders
                 for D in range(len(datasets)): 
                     dataset = datasets[D]
-                    self.dataset_dirs.append(file)
                     if dataset in full_dir: # Consider only requested datasets
+                        self.dataset_dirs.append(file)
                         dataset_len = 0
                         for label_ID in range(len(data_labels)): # Consider the data labels
                             image_list = os.listdir(full_dir + '/' + data_labels[label_ID])
                             self.image_paths.extend(image_list)
                             self.image_labelIDs.extend(label_ID for i in range(len(image_list)))
-                            self.class_counts[D,label_ID] += len(image_list)
+                            self.basic_class_counts[D,label_ID] += len(image_list)
                             self.splitpad_apply.extend(splitpad_transforms[D] for i in range(len(image_list)))
                             self.resizemove_apply.extend(resizemove_transforms[D] for i in range(len(image_list)))
                             self.flip_apply.extend(flip_transforms[D] for i in range(len(image_list)))
+                            self.image_datasets.extend(D for i in range(len(image_list)))
                             dataset_len += len(image_list)
                         self.dataset_lengths[D] = dataset_len
                         self.dataset_enhanced[D] = splitpad_transforms[D] or resizemove_transforms[D]
@@ -96,19 +98,14 @@ class LBA_Images_Dataset(Dataset):
         self.splitpad_apply = np.array(self.splitpad_apply, dtype=bool)
         self.resizemove_apply = np.array(self.resizemove_apply, dtype=bool)
         self.flip_apply = np.array(self.flip_apply, dtype=bool)
-
+        self.image_datasets = np.array(self.image_datasets, dtype=int)
         self.basic_length = len(self.image_paths)            
-        self.image_datasets, LHS = np.zeros(len(self.image_paths), dtype=int), 0
-        for D in range(len(self.dataset_lengths)):
-            RHS = LHS + self.dataset_lengths[D]  
-            self.image_datasets[LHS:RHS] = D 
-            LHS = RHS  
 
         self.labelID2label = {i:j for i,j in enumerate(data_labels)}
         self.label2labelID = dict.fromkeys(data_labels)
         self.label2labelID.update((j,i) for i,j in enumerate(self.label2labelID))
         self.enhanced_length, self.weights = self.basic_length, np.ones([1, self.basic_length], dtype=float) / float(self.basic_length)
-        if enhanced: self.enhanced_length, self.weights = self.class_weights()
+        if enhanced: self.enhanced_length, self.weights = self.construct_weights()
 
     # Return length of dataset
     def __len__(self):
@@ -151,13 +148,14 @@ class LBA_Images_Dataset(Dataset):
             if transform == "ResizeMove": image = transforms.Compose([ResizeMove(),])(image)       
         return image
 
-    # Construct class weights
-    def class_weights(self):
+    # Construct weights
+    def construct_weights(self):
+        # Construct class weights
         weights, LHS, enhanced_length = np.zeros([1, self.basic_length], dtype=float), 0, 0
         for D in range(len(self.dataset_lengths)):
             RHS = LHS + self.dataset_lengths[D]
             isenhanced = int(self.dataset_enhanced[D])
-            for Class in range(len(self.class_counts[D])):
+            for Class in range(len(self.basic_class_counts[D])):
                 if self.data_labels[Class] == "CircComp": weight = 1
                 if self.data_labels[Class] == "CircCompLocal": weight = 1 + isenhanced * 2
                 if self.data_labels[Class] == "CircCompShearCombi": weight = 1 + isenhanced * 2
@@ -169,10 +167,15 @@ class LBA_Images_Dataset(Dataset):
                 if self.data_labels[Class] == "ShearLocal": weight = 1 + isenhanced * 2
                 if self.data_labels[Class] == "ShearTorsion": weight = 1
                 if self.data_labels[Class] == "ShearTransverse": weight = 1 + isenhanced * 2                                    
-                enhanced_length += int(weight * self.class_counts[D,Class])
-                indices = np.where(self.image_labelIDs[LHS:RHS] == Class)
-                weights[LHS:RHS,indices[0][:]] = 0.0
-                try: weights[LHS:RHS,indices[0][:]] = float(1. / len(self.data_labels)) / float(weight * self.class_counts[D,Class])
-                except: pass	
-            LHS = RHS			     
+                enhanced_length += int(weight * self.basic_class_counts[D,Class])
+                self.enhanced_class_counts[D,Class] = self.basic_class_counts[D,Class] * weight
+            LHS = RHS   
+        total_enhanced_class_counts = np.sum(self.enhanced_class_counts, axis=0)
+
+        # Construct instance weights
+        for Class in range(len(total_enhanced_class_counts)):
+            indices = np.where(self.image_labelIDs == Class)
+            if len(indices[0]) > 0:
+                weights[:,indices[0][:]] = float(1. / len(self.data_labels)) / float(total_enhanced_class_counts[Class])	
+		     
         return enhanced_length, weights
