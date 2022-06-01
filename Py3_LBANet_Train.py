@@ -14,7 +14,7 @@ from Py3_LBANet_Dataset import *
 ### Master LBANet Pytorch trainining script ###
 ### Can be run directly from cmd as: python Py3LBANet_Train.py ###
 
-# (C) Dr Adam Jan Sadowski of Imperial College London, last modified at 19.40 on 31/05/22
+# (C) Dr Adam Jan Sadowski of Imperial College London, last modified at 18.12 on 01/06/22
 # Copyright under a BSD 3-Clause License, see https://github.com/SadowskiAJ/LBANet.git
 
 
@@ -22,9 +22,13 @@ from Py3_LBANet_Dataset import *
 # INPUTS #
 ##########
 # Directory paths
-basic_dataset_dir_path = 'LBANet_D0_300522_basic_dataset' # relative path to complete basic dataset
+datasets_dir_root_path = 'DNN_LBA_datasets' # relative path to root folder containing datasets
 
-# Data labels
+# Datasets and labels
+datasets = ['D0','D1'] # Which datasets to train on
+splitpad_transforms = [True, False] # Whether to potentially apply split-pad transformations on circ. symmetric, non-axisymmetric and non-periodic classes in these datasets (enhances the datasets)
+resizemove_transforms = [True, False] # Whether to potentially apply resize-move transformations on 'Local' classes in these datasets (enhances the datasets)
+flip_transforms = [True, True] # Whether to apply flip transforms on all classes these datasets (does not enhance the datasets)
 data_labels = ['CircComp', 'CircCompLocal', 'CircCompShearCombi', 'MerCompAxi', 'MerCompChequer', 'MerCompLocal', 'MerCompOtherKoiter', 'MerCompShearCombi', 'ShearLocal', 'ShearTorsion', 'ShearTransverse']
 
 # Global training parameters
@@ -34,12 +38,12 @@ k_folds = 1 # no. of folds for k-fold cross-validation
 batch_size = 32 # how many samples per batch to load
 report_loss_every_X_batches = 50 # report on loss function every X batches
 num_workers = 8 # no. of subprocesses to be used in data loading
-restart = False # Restart analysis (k_folds = 1 only)
+restart_file = 'LBANet_D0.pt' # Restart analysis (k_folds = 1 only) - give .pt file name as string to restart
 
 # CNN optimiser hyperparameters (input layer always of size 1000x1000 = 10^6 2-channel RB pixels, with unusued G channel dropped entirely)
 LR = 0.001 # Learning rate to determine size of optimiser steps
 momentum = 0.00 # Momentum in the direction of steepest gradient for the optimiser
-epochs = 50 # Max. no of training epochs
+epochs = 20 # Max. no of training epochs
 
 # Set device
 target_dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # Use CUDA-enabled GPU if present
@@ -76,20 +80,25 @@ fil += "_LR" + dec2str(LR, 4) + "_MM" + dec2str(momentum, 2) + "_K" + str(k_fold
 ############
 # Initialise datasets
 if k_folds > 1: 
-    basic_dataset = LBA_Images_Dataset(basic_dataset_dir_path, data_labels, apply_transform=False)
+    nonenhanced_dataset = LBA_Images_Dataset(root_dir=datasets_dir_root_path, datasets=datasets, data_labels=data_labels)
     skf = StratifiedKFold(n_splits=k_folds, shuffle=True) 
 else:
-    basic_dataset = LBA_Images_Dataset(basic_dataset_dir_path, data_labels, apply_transform=True)
+    nonenhanced_dataset = LBA_Images_Dataset(root_dir=datasets_dir_root_path, datasets=datasets, data_labels=data_labels,\
+         splitpad_transforms=splitpad_transforms, resizemove_transforms=resizemove_transforms, flip_transforms=flip_transforms)
 
 def print_dataset_counts(IDs):
     class_counts = {}
-    for labelID in sorted(basic_dataset.labelID2label):
+    for labelID in sorted(nonenhanced_dataset.labelID2label):
         class_counts[labelID] = (np.array(IDs) == labelID).sum()
-        print("Class " + str(labelID) + " or " + basic_dataset.labelID2label[labelID] + ": " + str(class_counts[labelID]) + " instances (" + str(np.round(100.*float(class_counts[labelID])/float(len(IDs)),2)) + " % of dataset)")
+        print("Class " + str(labelID) + " or " + nonenhanced_dataset.labelID2label[labelID] + ": " + str(class_counts[labelID]) + " instances (" + str(np.round(100.*float(class_counts[labelID])/float(len(IDs)),2)) + " % of basic total)")
     print("\n")
 print("#################################")
-print("Basic dataset instances: " + str(basic_dataset.basic_length) + " of which:")
-print_dataset_counts(basic_dataset.image_labelIDs)
+print("Dataset " + "".join(datasets) + " basic instances: " + str(nonenhanced_dataset.basic_length) + " of which:")
+print_dataset_counts(nonenhanced_dataset.image_labelIDs)
+for D in range(len(datasets)):
+    L, IE = nonenhanced_dataset.dataset_lengths[D], nonenhanced_dataset.dataset_enhanced[D]
+    print("Dataset " + datasets[D] + " has " + str(L) + " instances out of " + str(np.sum(nonenhanced_dataset.dataset_lengths)) + " (" + str(np.round(100.0 * float(L)/float(np.sum(nonenhanced_dataset.dataset_lengths)), 2)) + "%). Enhanced: " + str(IE))
+print("\n")
 
 # Define an epoch (complete pass over the training data)
 def train_single_epoch(network, optimiser, loss_fn, loader, flush):
@@ -151,17 +160,17 @@ CACCs_train, CACCs_test, Losses_train, Losses_test, best_loss = [], [], [], [], 
 CELossFn = torch.nn.CrossEntropyLoss() ## Cross-entropy loss function for multi-class classification networks
 # k-fold stratifed cross-validation on the basic dataset
 if k_folds > 1: 
-    for fold, (trn_IDs, tst_IDs) in enumerate(skf.split(X=basic_dataset.image_paths, y=basic_dataset.image_labelIDs)):
+    for fold, (trn_IDs, tst_IDs) in enumerate(skf.split(X=nonenhanced_dataset.image_paths, y=nonenhanced_dataset.image_labelIDs)):
         print("##### Fold " + str(fold+1) + " of " + str(k_folds) + " #####")
-        print("Basic dataset training instances: " + str(len(trn_IDs)) + " of which:")
-        print_dataset_counts(np.array(basic_dataset.image_labelIDs)[trn_IDs])
-        print("Basic dataset test instances: " + str(len(tst_IDs)) + " of which:")
-        print_dataset_counts(np.array(basic_dataset.image_labelIDs)[tst_IDs])
+        print("Non-enhanced dataset " + "".join(datasets) + " training instances: " + str(len(trn_IDs)) + " of which:")
+        print_dataset_counts(np.array(nonenhanced_dataset.image_labelIDs)[trn_IDs])
+        print("Non-enhanced dataset " + "".join(datasets) + " test instances: " + str(len(tst_IDs)) + " of which:")
+        print_dataset_counts(np.array(nonenhanced_dataset.image_labelIDs)[tst_IDs])
         print("\n")
 
-        # Initialise dataloaders for this fold
-        training_loader = DataLoader(dataset=basic_dataset, batch_size=batch_size, sampler=SubsetRandomSampler(trn_IDs), num_workers=num_workers, pin_memory=True)
-        test_loader = DataLoader(dataset=basic_dataset, batch_size=batch_size, sampler=SubsetRandomSampler(tst_IDs), num_workers=num_workers, pin_memory=True)
+        # Initialise non-enhanced dataloaders for this fold
+        training_loader = DataLoader(dataset=nonenhanced_dataset, batch_size=batch_size, sampler=SubsetRandomSampler(trn_IDs), num_workers=num_workers, pin_memory=True)
+        test_loader = DataLoader(dataset=nonenhanced_dataset, batch_size=batch_size, sampler=SubsetRandomSampler(tst_IDs), num_workers=num_workers, pin_memory=True)
 
         # Initialise network for this fold and print diagnostics
         LBA_CNN = LBANet(data_labels, target_dev) # Initialise network
@@ -184,7 +193,7 @@ if k_folds > 1:
             if LStrn < best_loss: 
                 best_loss = LStrn
                 txt = "CNN SAVED!"
-                save_network("Arch" + str(CNN_arch) + "_CV.pt", LStrn)       
+                save_network("Arch" + str(CNN_arch) + "_CV_" + "".join(datasets) + ".pt", LStrn)       
             update_file(fil + "_CV.txt", str(fold+1) + ", " + str(E+1) + ", " + str(LStrn) + ", " + str(CAtrnPC) + ", " + str(toc - tic) + ", " + txt + " ##########")     
             print("... elapsed time: " + str(np.round(toc - tic, 2)) + " s. " + txt)
 
@@ -218,14 +227,16 @@ if k_folds > 1:
 
 # Training on the enhanced dataset
 else: 
-    # Initialise dataloader
-    training_loader = DataLoader(dataset=basic_dataset, batch_size=batch_size, num_workers=num_workers, pin_memory=True, \
-        sampler=WeightedRandomSampler(weights=torch.DoubleTensor(basic_dataset.weights)[0], num_samples=basic_dataset.enhanced_length, replacement=True))
+    # Initialise enhanced dataset dataloader
+    training_loader = DataLoader(dataset=nonenhanced_dataset, batch_size=batch_size, num_workers=num_workers, pin_memory=True, \
+        sampler=WeightedRandomSampler(weights=torch.DoubleTensor(nonenhanced_dataset.weights)[0], num_samples=nonenhanced_dataset.enhanced_length, replacement=True))
 
     # Initialise network and print diagnostics
-    net_file = "Arch" + str(CNN_arch) + "_FINAL.pt"
-    if restart:
-        chkpnt = torch.load("Output/" + net_file)
+    net_file = "Arch" + str(CNN_arch) + "_FINAL_" + "".join(datasets) + ".pt"
+    first_epoch = 0
+    if restart_file is not None:
+        net_file = restart_file[:-3] + "_RESTART.pt"
+        chkpnt = torch.load("Output/" + restart_file)
         LBA_CNN = LBANet(data_labels, target_dev) # Initialise network
         LBA_CNN.load_state_dict(chkpnt["model_state_dict"])
         LBA_CNN.train(mode=True)
@@ -233,10 +244,9 @@ else:
         LBA_CNN.to(device=target_dev) # Move network to target device         
         MSGD = torch.optim.SGD(params=LBA_CNN.parameters(), lr=LR, momentum=momentum) # Initialise stochastic gradient descent optimiser with momentum    
         MSGD.load_state_dict(chkpnt["optimizer_state_dict"])
-        first_epoch = chkpnt["epoch"] + 1
-        best_loss = chkpnt["loss"]
+        #first_epoch = chkpnt["epoch"] + 1
+        #best_loss = chkpnt["loss"]
     else:
-        first_epoch = 0
         LBA_CNN = LBANet(data_labels, target_dev) # Initialise network
         print(LBA_CNN)
         LBA_CNN.describe()
@@ -244,7 +254,7 @@ else:
         MSGD = torch.optim.SGD(params=LBA_CNN.parameters(), lr=LR, momentum=momentum) # Initialise stochastic gradient descent optimiser with momentum    
 
     # Train network
-    print("##### TRAINING ON ENTIRE DATASET  #####")
+    print("##### TRAINING ON ENHANCED DATASET #####")
     epoch_times, evaluation_times = [], []
     for E in range(first_epoch, epochs): 
         # Train network
@@ -263,7 +273,7 @@ else:
         CAtrn, LStrn = classification_accuracy_loss(network=LBA_CNN, loss_fn=CELossFn, loader=training_loader)
         toc = time.perf_counter() 
         evaluation_times.append(toc - tic) 
-        CAtrnPC = 100.0*float(CAtrn)/float(basic_dataset.enhanced_length)
+        CAtrnPC = 100.0*float(CAtrn)/float(nonenhanced_dataset.enhanced_length)
 
         # Save network
         LBA_CNN.train(mode=True)
@@ -275,7 +285,7 @@ else:
         # Reporting
         update_file(fil + "_FINAL.txt", str(E+1) + ", " + str(LStrn) + ", " + str(CAtrnPC) + ", " + \
             str(epoch_times[-1]) + ", " + str(evaluation_times[-1]) + ", " + txt + " ##########")     
-        print("Training actual CA = " + str(CAtrn) + " out of " + str(basic_dataset.enhanced_length) + \
+        print("Training actual CA = " + str(CAtrn) + " out of " + str(nonenhanced_dataset.enhanced_length) + \
             " (" + str(np.round(CAtrnPC, 2)) + " %), loss = " + str(np.round(LStrn, 2))) 
         print("... elapsed time: " + str(np.round(epoch_times[-1], 2)) + " s. (train)  " + \
             str(np.round(evaluation_times[-1], 2)) + " s. (eval)  " + txt)
