@@ -14,7 +14,7 @@ import random
 ### Master Dataset definition for the LBANet Pytorch trainer ###
 ### Imported by: Py3_LBANet_Train.py ###
 
-# (C) Dr Adam Jan Sadowski of Imperial College London, last modified at 18.12 on 01/06/22
+# (C) Dr Adam Jan Sadowski of Imperial College London, last modified at 23.30 on 01/06/22
 # Copyright under a BSD 3-Clause License, see https://github.com/SadowskiAJ/LBANet.git
 
 
@@ -43,8 +43,8 @@ class SplitPad:
             newLHS, newRHS = image[:,:,500:1000], torch.zeros([3,1000,500], dtype=torch.uint8)
             return torch.cat((newLHS, newRHS), dim=2)            
 
-# Resise local feature to a 1/n^2 of original size (n is a positive integer between 1 and 10 inclusive), and place at random n*n grid location
-class ResizeAndMove:
+# Resize local feature to a 1/n^2 of original size (n is a positive integer between 1 and 10 inclusive), and place at random n*n grid location
+class ResizeMove:
     def __call__(self, image):
         n = random.choice([1,2,4,5,10])
         # N.B. n = 1 gives original 1000x1000 pixel image, n = 10 gives 100x100 pixel image
@@ -137,9 +137,9 @@ class LBA_Images_Dataset(Dataset):
             if label == "MerCompShearCombi": trans.append(random.choice(["AsIs","SplitPad"]))
             if label == "ShearTransverse": trans.append(random.choice(["AsIs","SplitPad"]))
         if self.resizemove_apply[idx]: # Only on 'local' classes
-            if label == "CircCompLocal": trans.append(random.choice(["AsIs","ResizeAndMove"]))
-            if label == "MerCompLocal": trans.append(random.choice(["AsIs","ResizeAndMove"]))
-            if label == "ShearLocal": trans.append(random.choice(["AsIs","ResizeAndMove"]))
+            if label == "CircCompLocal": trans.append(random.choice(["AsIs","ResizeMove"]))
+            if label == "MerCompLocal": trans.append(random.choice(["AsIs","ResizeMove"]))
+            if label == "ShearLocal": trans.append(random.choice(["AsIs","ResizeMove"]))
         if self.flip_apply[idx]: # Regardless of class
             trans.append("Flip")
         
@@ -148,7 +148,7 @@ class LBA_Images_Dataset(Dataset):
             if transform == "AsIs": continue
             if transform == "Flip": image = transforms.Compose([transforms.RandomHorizontalFlip(p=0.5), transforms.RandomVerticalFlip(p=0.5)])(image)
             if transform == "SplitPad": image = transforms.Compose([SplitPad(),])(image)     
-            if transform == "ResizeAndMove": image = transforms.Compose([ResizeAndMove(),])(image)       
+            if transform == "ResizeMove": image = transforms.Compose([ResizeMove(),])(image)       
         return image
 
     # Construct class weights
