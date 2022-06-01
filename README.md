@@ -16,6 +16,8 @@ The following scripts interface with the `PyTorch` framework via a `Python 3` in
 * `Py3_LBANet_Arch3.py` - A script potentially called by the above to define a CNN architecture with three convolutional-maxpool layer pair and four fully-connected layers.
 * `Py3_LBANet_Arch4.py` - A script potentially called by the above to define a CNN architecture with four convolutional-maxpool layer pair and four fully-connected layers. This is the architecture ultimately adopted for `LBANet`.
 
+All caused is made available under a BSD 3-Clause license. Please see the license file for details.
+
 # `LBANet` trained network in the `.pt` `PyTorch` format
 Blah
 
