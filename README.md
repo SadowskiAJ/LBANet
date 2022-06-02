@@ -1,6 +1,6 @@
 # `Python` scripts
 The following scripts interface mainly with the `ABAQUS Python 2` interpreter:
-* `APy2_Generate_Training_Set.py` - A `Python 2` script to be used with the `ABAQUS` `Python 2` interpreter to generate the basic dataset (`D0`) of LBA eigenmodes.
+* `APy2_Generate_Training_Set.py` - A `Python 2` script to be used with the `ABAQUS` `Python 2` interpreter to generate the basic dataset `D0` of LBA eigenmodes.
 * `APy2_ABQDeformations_to_Binary.py` - A `Python 2` script to be called by the above via the `ABAQUS` `Python 2` interpreter that extracts LBA eigenmode deformation data from an `ABAQUS` `.odb` file and writes it in binary format to an intermediate `.bin` file.
 * `Py3_Binary_to_Image.py` - A `Python 3` script to be called by the above via an indirect `os.command()` call to read deformation data from the intermediate `.bin` and encode it as a chromatic signature in a `.jpg` image file.
 
@@ -25,8 +25,9 @@ The datasets may be downloaded under a CC BY 4.0 license via the following links
 
 # `LBANet` trained network in the `.pt` `PyTorch` format
 Two trained `LBANet' networks are offered for download:
-* One trained on the `D0' basic dataset (probabilistically enhanced to n = 25,726): https://figshare.com/s/9cec97bdbfe0021c44d0
-* One trained on both the `D0' and `D1' datasets:
+* One trained on the `D0` basic dataset (probabilistically enhanced to n = 25,726): https://figshare.com/s/9cec97bdbfe0021c44d0
+* One trained on both the `D0` and `D1` datasets: https://...
+
 Please note that these links will change once the work has been accepted for publication.
 
 Last updated by Dr Adam Jan Sadowski on 02/06/22.
