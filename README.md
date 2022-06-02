@@ -18,13 +18,15 @@ The following scripts interface with the `PyTorch` framework via a `Python 3` in
 
 All caused is made available under a BSD 3-Clause license. Please see the license file for details.
 
-# `LBANet` trained network in the `.pt` `PyTorch` format
-Blah
-
 # Datasets of LBA eigenmodes of cylindrical shells
 The datasets may be downloaded under a CC BY 4.0 license via the following links:
-* `D0` on 30/05/22 (basic generic dataset n = 13392, AJS): https://doi.org/10.6084/m9.figshare.19953740
-* NOT ACTIVE `D1` on 31/05/22 (wind buckling dataset n = 380, AJS): https://academictorrents.com/download/927280b8dd0d67db124982162943bc657ef1098c
+* `D0` on 30/05/22 (basic generic dataset n = 13,392): https://figshare.com/s/4697e2d992b7b90f4305
+* NOT ACTIVE `D1` on 31/05/22 (wind buckling dataset n = 380): https://figshare.com/s/1a73da31fce9b9a29dd3
 
+# `LBANet` trained network in the `.pt` `PyTorch` format
+Two trained `LBANet' networks are offered for download:
+* One trained on the `D0' basic dataset (probabilistically enhanced to n = 25,726): https://figshare.com/s/9cec97bdbfe0021c44d0
+* One trained on both the `D0' and `D1' datasets:
+Please note that these links will change once the work has been accepted for publication.
 
-Last updated by Dr Adam Jan Sadowski on 01/06/22.
+Last updated by Dr Adam Jan Sadowski on 02/06/22.
