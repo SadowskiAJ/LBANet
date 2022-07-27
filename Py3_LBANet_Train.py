@@ -12,7 +12,7 @@ from Py3_LBANet_Dataset import *
 
 
 ### Master LBANet Pytorch trainining script ###
-### Can be run directly from cmd as: python Py3LBANet_Train.py ###
+### Can be run directly from cmd as: python Py_3LBANet_Train.py ###
 
 # (C) Dr Adam Jan Sadowski of Imperial College London, last modified at 00.21 on 02/06/22
 # Copyright under a BSD 3-Clause License, see https://github.com/SadowskiAJ/LBANet.git
@@ -46,7 +46,7 @@ momentum = 0.00 # Momentum in the direction of steepest gradient for the optimis
 epochs = 20 # Max. no of training epochs
 
 # Set device
-target_dev = 'cpu'#torch.device('cuda' if torch.cuda.is_available() else 'cpu') # Use CUDA-enabled GPU if present
+target_dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # Use CUDA-enabled GPU if present
  
 
 #################
