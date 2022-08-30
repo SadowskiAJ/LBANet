@@ -20,14 +20,14 @@ All code is made available under a BSD 3-Clause license. Please see the license 
 
 # Datasets of LBA eigenmodes of cylindrical shells
 The datasets may be downloaded under a CC BY 4.0 license via the following links:
-* `D0` on 30/05/22 (basic generic dataset `n = 13,392`): https://figshare.com/s/4697e2d992b7b90f4305
-* `D1` on 31/05/22 (wind buckling dataset `n = 380`): https://figshare.com/s/1a73da31fce9b9a29dd3
+* `D0` on 30/05/22 (basic generic dataset `n = 13,392`): 10.6084/m9.figshare.19953740
+* `D1` on 31/05/22 (wind buckling dataset `n = 380`): 10.6084/m9.figshare.19953719
 
 # `LBANet` trained network in the `.pt` `PyTorch` format
-Two trained `LBANet` networks are offered for download under a CC BY 4.0 license from: https://figshare.com/s/9cec97bdbfe0021c44d0
+Two trained `LBANet` networks are offered for download under a CC BY 4.0 license from: 10.6084/m9.figshare.19969760
 * One trained on the `D0` basic dataset (probabilistically enhanced to `n = 25,726`). Max classification accuracy achieved during training was 99.74%, and that on the non-enhanced `D0` and `D1` are 99.44% and 44.21% respectively, overall 97.92%.
 * One trained on both the enhanced `D0` and non-enhanced `D1` datasets (`n = 26,106`). Max classification accuracy achieved during traning was 99.75%, and that on the non-enhanced `D0` and `D1` are 99.81% and 95.26% respectively, overall 99.69%.
 
 Please note that these links will change once the work has been accepted for publication.
 
-Last updated by Dr Adam Jan Sadowski on 15/06/22.
+Last updated by Dr Adam Jan Sadowski on 30/08/22.
