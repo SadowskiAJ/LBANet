@@ -20,8 +20,8 @@ All code is made available under a BSD 3-Clause license. Please see the license 
 
 # Datasets of LBA eigenmodes of cylindrical shells
 The datasets may be downloaded under a CC BY 4.0 license via the following links:
-* `D0` on 30/05/22 (basic generic dataset `n = 13,383`): 10.6084/m9.figshare.19953740
-* `D1` on 31/05/22 (wind buckling dataset `n = 380`): 10.6084/m9.figshare.19953719
+* `D0` on 30/05/22 (basic generic dataset `n = 13,383`): https://dx.doi.org/10.6084/m9.figshare.19953740
+* `D1` on 31/05/22 (wind buckling dataset `n = 380`): https://dx.doi.org/10.6084/m9.figshare.19953719
 
 # `LBANet` trained network in the `.pt` `PyTorch` format
 Two trained `LBANet` networks are offered for download under a CC BY 4.0 license from: 10.6084/m9.figshare.19969760
@@ -29,6 +29,6 @@ Two trained `LBANet` networks are offered for download under a CC BY 4.0 license
 * One trained on both the enhanced `D0` and non-enhanced `D1` datasets (`n = 26,106`). Max classification accuracy achieved during traning was 99.75%, and that on the non-enhanced `D0` and `D1` are 99.81% and 95.26% respectively, overall 99.69%.
 
 # Publication
-Sadowski A.J. (2022) "Automated classification of linear bifurcation buckling eigenmodes in thin-walled cylindrical shell structures" Advances in Engineering Software, https://doi.org/10.1016/j.advengsoft.2022.103257.
+Sadowski A.J. (2022) "Automated classification of linear bifurcation buckling eigenmodes in thin-walled cylindrical shell structures" Advances in Engineering Software, https://dx.doi.org/10.1016/j.advengsoft.2022.103257.
 
 Last updated by Dr Adam Jan Sadowski on 05/09/22.
