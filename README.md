@@ -24,7 +24,7 @@ The datasets may be downloaded under a CC BY 4.0 license via the following links
 * `D1` on 31/05/22 (wind buckling dataset `n = 380`): https://dx.doi.org/10.6084/m9.figshare.19953719
 
 # `LBANet` trained network in the `.pt` `PyTorch` format
-Two trained `LBANet` networks are offered for download under a CC BY 4.0 license from: 10.6084/m9.figshare.19969760
+Two trained `LBANet` networks are offered for download under a CC BY 4.0 license from: https://dx.doi.org/10.6084/m9.figshare.19969760
 * One trained on the `D0` basic dataset (probabilistically enhanced to `n = 25,726`). Max classification accuracy achieved during training was 99.74%, and that on the non-enhanced `D0` and `D1` are 99.44% and 44.21% respectively, overall 97.92%.
 * One trained on both the enhanced `D0` and non-enhanced `D1` datasets (`n = 26,106`). Max classification accuracy achieved during traning was 99.75%, and that on the non-enhanced `D0` and `D1` are 99.81% and 95.26% respectively, overall 99.69%.
 
